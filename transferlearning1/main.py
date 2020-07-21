@@ -29,6 +29,9 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     #多GPU运算的实现,可以看到是先进行DataParallel然后to(device)
+    '''
+    这里有一个坑:多GPU训练在原始网络结构中添加了一层module,在测试模型时不需要用到多GPU测试，因此在保存模型时应该把module层去掉
+    '''
     if torch.cuda.device_count() > 1:
         model_ft = nn.DataParallel(model_ft)
     model_ft = model_ft.to(device)
@@ -44,9 +47,12 @@ def main():
     #训练模型然后返回结果最好的模型
     model_ft = train_model(model_ft,criterion,optimizer_ft,exp_lr_scheduler,num_epochs=25)
 
-    #保存该模型的权重
+    #保存该模型的权重,如果是d多GPU训练还需要加 .module 把module层去掉。这样在加载模型时不会有限制
     PATH = './model_ft.pth'
-    torch.save(model_ft.state_dict(),PATH)
+    if torch.cuda.device_count() > 1:
+        torch.save(model_ft.module.state_dict(),PATH)
+    else:
+        torch.save(model_ft.state_dict(),PATH)
 
 if __name__ == "__main__":
     main()
