@@ -82,3 +82,5 @@ def visualize_model(num_images=6):
                 ax.axis('off')
                 ax.set_title('predicted: {}/label: {}'.format(class_names[preds[j]],class_names[labels[j]]))
                 imshow(inputs.cpu().data[j])
+    plt.ioff()
+    plt.show()
