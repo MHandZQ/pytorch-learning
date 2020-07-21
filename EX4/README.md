@@ -416,3 +416,16 @@ for data in rand_loader:
 ```
 
 ![image-20200720200314379](C:\Users\77960\AppData\Roaming\Typora\typora-user-images\image-20200720200314379.png)
+
+## 多GPU训练模型的保存
+
+这里有一个坑:多GPU训练在原始网络结构中添加了一层module,在测试模型时不需要用到多GPU测试，因此在保存模型时应该把module层去掉。
+
+```python
+#保存该模型的权重,如果是d多GPU训练还需要加 .module 把module层去掉。这样在加载模型时不会有限制
+PATH = './model_ft.pth'
+if torch.cuda.device_count() > 1:
+    torch.save(model_ft.module.state_dict(),PATH)
+else:
+    torch.save(model_ft.state_dict(),PATH)
+```
